@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Image Rekognition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+</head>
+
+<body>
+      <h1>Form Sample</h1>
+
+          <form method="post" id="flytippingForm">
+
+
+              <fieldset>
+                <legend>
+                  <h1>
+                    Your details
+                  </h1>
+                </legend>                
+                  <label for="forename">
+                    Forename
+                  </label>
+                  <input id="forename" name="forename" type="text" value="Christopher">
+
+                  <label for="surname">
+                    Surname
+                  </label>
+                  <input id="surname" name="surname" type="text" value="Smith">
+
+                
+                  <label for="contact_email">
+                    Email address
+                  </label>
+                  <input id="contact_email" name="contact_email" type="email" spellcheck="false" value="hello@example.com">
+                
+                  <label for="contact_tel">
+                    Contact Telephone
+                  </label>
+                  <input id="contact_tel" name="contact_tel" type="text" value="0191 1112223">
+
+                  <label for="can_contact">
+                    Can contact via email?
+                  </label>
+                  <select id="can_contact" name="can_contact">
+                    <option value="true" selected>Yes</option>
+                    <option value="false">No</option>
+                  </select>
+              </fieldset>
+
+              <fieldset>
+                <legend>
+                  <h1>
+                    Fly tipping details
+                  </h1>
+                </legend>
+                
+                  <label for="item_type">
+                    What has been fly-tipped?
+                  </label>
+                  <select id="item_type" name="item_type">
+                    <option value="tyres">Tyres</option>
+                    <option value="car">Car</option>
+                    <option value="electricals">Electricals</option>
+                    <option value="waste">General Waste</option>
+                  </select>
+                
+                  <label for="item_subtype">
+                    Specific detail
+                  </label>
+                  <select id="item_subtype" name="item_subtype">
+                    <option value="none">None</option>
+                    <option value="car_tyre">Car tyre</option>
+                    <option value="tractor_tyre">Tractor/Lorry tyre</option>
+                  </select>
+                
+                  <label for="describe_type">
+                    Description
+                  </label>
+                  <input id="describe_type" name="describe_type" type="text" value="Description of x">
+
+                  <label for="item_count">
+                    Number of items
+                  </label>
+                  <input id="item_count" name="item_count" type="text" value="5">
+
+                  <label for="public_land">
+                    Waste located on public land?
+                  </label>
+                  <select id="public_land" name="public_land">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="dont_know">Don't know</option>
+                  </select>
+                
+                  <label for="other_information">
+                    Any other information
+                  </label>
+                  <input id="other_information" name="other_information" type="text" value="This has happened many times">
+              </fieldset>
+
+              <fieldset>
+                <legend>
+                  <h1>
+                    Image upload
+                  </h1>
+                </legend>
+                  <label for="image_reference_s3">
+                    Upload an image (jpg only)
+                  </label>
+                  <input id="image_reference_s3" name="image_reference_s3" type="file">
+              </fieldset>      
+
+              <fieldset>
+                <legend>
+                  <h1>
+                    Fly-tipping location
+                  </h1>
+                </legend>
+
+                  <label for="latitude">
+                    Latitude
+                  </label>
+                  <input id="latitude" name="latitude" type="text" value="54.0">
+
+                  <label for="longitude">
+                    Longitude
+                  </label>
+                  <input id="longitude" name="longitude" type="text" value="-1.6">
+                
+              </fieldset>
+            <button id="submit-button">Continue</button>
+          </form>
+        
+      <div id="confirmation_message">
+        <h1>
+          Submission status
+        </h1>
+        <div id="submission_message">
+        </div>
+      </div>
+          
+        
+
+
+
+  <script>
+    window.onload = function(){
+
+      //load default variables
+      form = document.getElementById('flytippingForm');
+
+      //set API URLs
+      url_head = '<REPLACE WITH API GATEWAY URL INCLUDING STAGE>'
+
+      url_generate_pre_signed = url_head+'/pre_signed_url'
+      url_citizen_submission = url_head+'/citizen_submission'
+
+      //set display message for user
+      submission_message = document.getElementById('submission_message')
+      confirmation_message = document.getElementById('confirmation_message')
+      confirmation_message.style.display="none"
+
+      form.addEventListener('submit', function (e) {
+
+        e.preventDefault()
+
+        document.getElementById('submit-button').style.display="none"
+
+        form.style.display="none"
+        confirmation_message.style.display="block"
+        submission_message.innerHTML = 'Preparing image upload...'
+
+        var image_filename = '';
+        
+        //if the user has submitted an image, we need to upload it first. Otherwise, send empty image with form
+        if(form.image_reference_s3.files.length > 0) {
+
+
+          step_1_form_json = {}
+
+          step1 = new XMLHttpRequest();
+          step1.open("POST", url_generate_pre_signed, true);
+          step1.setRequestHeader("Content-Type", "application/json");
+          step1.responseType = 'json';
+          step1.addEventListener("load", function () {
+            if (step1.status < 400) {
+              //SUCCESS - Do step 2, file upload
+              submission_message.innerHTML = 'Uploading image...'
+
+              //generate file upload field
+              step2_file = form.image_reference_s3.files[0]
+              //Third step - submit for details + s3 reference to citizen submission end point
+              step2 = new XMLHttpRequest();
+              step2.open("PUT", step1.response.pre_signed_url, true);
+              step2.addEventListener("load", function () {
+                if (step2.status < 400) {
+                  //success
+                  submission_message.innerHTML = 'Image uploaded, preparing to submit form data'
+
+                  //set filename for form upload
+                  image_filename = step1.response.key
+
+                  //do step3 - form upload
+                  submit_step3();
+                } else {
+                  submission_message.innerHTML = 'Error uploading image - please try again later.'
+                  return
+                }
+              });
+              step2.send(step2_file);
+
+            } else {
+              submission_message.innerHTML = 'Error preparing file upload. Please refresh and try again...'
+              return
+            }
+          });
+          step1.send(JSON.stringify(step_1_form_json));
+
+        } else {
+          //submit step 3 directly
+          submit_step3();
+        }
+
+        function submit_step3() {
+          submission_message.innerHTML = 'Submitting form...'
+
+          step_3_form_json = {
+            forename: form.forename.value,
+            surname: form.surname.value,
+            contact_email: form.contact_email.value,
+            contact_tel: form.contact_tel.value,
+            can_contact: form.can_contact.value,
+            latitude: form.latitude.value,
+            longitude: form.longitude.value,
+            image_reference_s3: image_filename,
+            item_type: form.item_type.value,
+            item_subtype: form.item_subtype.value,
+            item_count: form.item_count.value,
+            describe_type: form.describe_type.value,
+            public_land: form.public_land.value,
+            other_information: form.other_information.value,
+          }
+
+          //Third step - submit for details + s3 reference to citizen submission end point
+          step3 = new XMLHttpRequest();
+          step3.open("POST", url_citizen_submission, true);
+          step3.setRequestHeader("Content-Type", "application/json");
+          step3.addEventListener("load", function () {
+            if (step3.status < 400) {
+              //success
+              submission_message.innerHTML = 'Form submission successful.'
+            } else {
+              submission_message.innerHTML = 'Error submitting information - please try again later.'
+              return
+            }
+          });
+          step3.send(JSON.stringify(step_3_form_json));
+        }
+
+      })
+    }
+
+  </script>
+</body>
+
+</html>

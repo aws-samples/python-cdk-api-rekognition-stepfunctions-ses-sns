@@ -1,0 +1,142 @@
+{
+  "app": "python3 app.py",
+  "context": {
+    "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true,
+    "@aws-cdk/core:enableStackNameDuplicates": "true",
+    "aws-cdk:enableDiffNoFail": "true",
+    "@aws-cdk/core:stackRelativeExports": "true",
+    "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
+    "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
+    "@aws-cdk/aws-kms:defaultKeyPolicies": true,
+    "@aws-cdk/aws-s3:grantWriteWithoutAcl": true,
+    "@aws-cdk/aws-ecs-patterns:removeDefaultDesiredCount": true,
+    "@aws-cdk/aws-rds:lowercaseDbIdentifier": true,
+    "@aws-cdk/aws-efs:defaultEncryptionAtRest": true,
+    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
+    "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": true,
+
+
+
+    "APPLICATION SETTINGS":"EDIT BELOW",
+
+    "cors_internal_domain" : "https://www.example.com",
+    "citizen_get_url_link" : "https://www.example.com/flytip/get",
+    "rekognition_min_confidence" : "80",
+    "email_from_sender" : "Image Rekognition <hello@example.com>",
+    "sns_message_subject" : "New submission to Fly Tipping Platform",
+    "default_ses_email" : "hello@example.com",
+
+
+    "default_collection_teams" : [
+      {
+        "team" : "default",
+        "display_name" : "Fly Tipping: Default Topic",
+        "default_notification_type" : "email",
+        "default_to" : "hello@example.com"
+      },
+      {
+        "team" : "waste",
+        "display_name" : "Fly Tipping: Waste Topic",
+        "default_notification_type" : "email",
+        "default_to" : "hello@example.com"
+      }
+    ],
+
+
+    "dynamo_default_sizes" : [
+      {
+        "PutRequest" : {
+          "Item":{
+            "item_label": { "S" : "Refridgerator" },
+            "volume": { "N" : "0.45" },
+            "mass": { "N" : "45" },
+            "density": { "N" : "0" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      },
+      {
+        "PutRequest" : {
+          "Item":{
+            "item_label": { "S" : "Appliance" },
+            "volume": { "N" : "0.45" },
+            "mass": { "N" : "45" },
+            "density": { "N" : "0" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      },
+      {
+        "PutRequest" : {
+          "Item":{ 
+            "item_label": { "S" : "Tent" },
+            "volume": { "N" : "0.8" },
+            "mass": { "N" : "40" },
+            "density": { "N" : "0" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      },
+      {
+        "PutRequest" : {
+          "Item":{ 
+            "item_label": { "S" : "Gas Bottle" },
+            "volume": { "N" : "0.25" },
+            "mass": { "N" : "18" },
+            "density": { "N" : "0" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      },
+      {
+        "PutRequest" : {
+          "Item":{ 
+            "item_label": { "S" : "Metal" },
+            "volume": { "N" : "0" },
+            "mass": { "N" : "0" },
+            "density": { "N" : "85" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      },
+      {
+        "PutRequest" : {
+          "Item":{ 
+            "item_label": { "S" : "Tire" },
+            "volume": { "N" : "0.2" },
+            "mass": { "N" : "9" },
+            "density": { "N" : "0" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      },
+      {
+        "PutRequest" : {
+          "Item":{ 
+            "item_label": { "S" : "Car" },
+            "volume": { "N" : "5" },
+            "mass": { "N" : "25" },
+            "density": { "N" : "5" },
+            "default_team" : { "S" : "waste" }
+          }
+        }
+      }
+    ],
+
+    "new_submission_template": {
+      "template_name": "EmailTemplate_NewFlyTippingSubmission",
+      "subject_part": "Fly Tipping Report Confirmation",
+      "html_part": "Your Council<br/><br/>Thank you for for submitting a fly-tipping report to Your Council. Your report will now be reviewed by our team. Once the issue has been resolved, you will receive an update via this address. You can check the status of the report at the following link: {{link}}",
+      "text_part": "Your Council\n\nThank you for for submitting a fly-tipping report to Your Council. Your report will now be reviewed by our team. Once the issue has been resolved, you will receive an update via this address. You can check the status of the report at the following link: {{link}}"
+    },
+
+    "update_submission_template": {
+      "template_name": "EmailTemplate_UpdateFlyTippingSubmission",
+      "subject_part": "Fly Tipping Report Status Update",
+      "html_part": "Your Council<br/><br/>Thank you for for submitting a fly-tipping report to Your Council. Your report has been reviewed by our team. You can check the status of the report at the following link: {{link}}",
+      "text_part": "Your Council\n\nThank you for for submitting a fly-tipping report to Your Council. Your report has been reviewed by our team. You can check the status of the report at the following link: {{link}}"
+    }
+
+
+  }
+}
